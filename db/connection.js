@@ -5,9 +5,9 @@ const db = mysql.createConnection(
         host: 'localhost',
         user: 'root',
         password: 'SQL2022password',
-        database: 'employee'
+        database: 'employees_info'
     },
-    console.log('Connected to the employee database')
+    console.log('Connected to the employees_info database')
 );
 
 module.exports = db;
