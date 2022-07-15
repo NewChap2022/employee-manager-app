@@ -85,7 +85,7 @@ const viewByElement = (action) => {
     })
 };
 
-const viewTheBudget = action => {
+const viewTheBudget = () => {
     let departmentsInfo
     let departments = []
     let sql = `SELECT * FROM departments`
@@ -105,13 +105,22 @@ const viewTheBudget = action => {
         .then(answer => {
             const departmentId = departmentsInfo.filter(element => element.name === answer.department)[0].id;
             sql = `SELECT departments.name AS department, SUM (roles.salary) AS total_budget
-                    FROM employees
-                    LEFT JOIN roles ON roles.id = role_id
-                    LEFT JOIN departments ON departments.id = roles.department_id
-                    WHERE role_id 
-                    IN (SELECT id FROM roles WHERE department_id = ${departmentId})`;
+                    FROM departments
+                    LEFT JOIN roles ON departments.id = roles.department_id
+                    LEFT JOIN employees ON employees.role_id = roles.id
+                    WHERE departments.id = ${departmentId}`;
             return db.promise().query(sql);
         })
 };
 
-module.exports = { viewAll, viewByElement, viewTheBudget } 
+const viewInfo = action => {
+    if (action.includes('view all')) {
+        return viewAll(action);
+    } else if (action.includes('view employees by')) {
+        return viewByElement(action);
+    } else {
+        return viewTheBudget()
+    }
+};
+
+module.exports = viewInfo; 

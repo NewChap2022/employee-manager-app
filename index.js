@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 const db = require('./db/connection');
 const cTable = require('console.table');
-const { viewAll, viewByElement, viewTheBudget } = require('./utils/viewFunctions');
+const viewInfo = require('./utils/viewFunctions');
 const addDataInput = require('./utils/addFunctions');
 const updateInfo = require('./utils/updateFunctions');
 const deleteInfo = require('./utils/deleteFunctions');
@@ -41,7 +41,7 @@ const menu = [
         type: 'rawlist',
         name: 'secondAction',
         message: 'What would you like to do?',
-        choices: ['Add A Employee', 'Add A Role', 'Add A Department', 'Go Back to Previous Menu'],
+        choices: ['Add an Employee', 'Add a Role', 'Add a Department', 'Go Back to Previous Menu'],
         when: ({ firstAction }) => {
             if (firstAction === "Add") {
                 return true;
@@ -91,13 +91,9 @@ const actionHandler = answer => {
     }
     action = answer.secondAction.toLowerCase();
     switch (true) {
-        case (action.includes('view all')):
-            return viewAll(action);
-        case (action.includes('view employees by')):
-            return viewByElement(action);
-        case (action.includes('view the total')):
-            return viewTheBudget(action);
-        case (action.includes('add a')):
+        case (action.includes('view')):
+            return viewInfo(action)
+        case (action.includes('add')):
             return addDataInput(action);
         case (action.includes('update')):
             return updateInfo(action);
