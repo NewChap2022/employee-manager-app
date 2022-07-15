@@ -2,6 +2,7 @@ const db = require('../db/connection');
 const inquirer = require('inquirer');
 const { employeeSql, roleSql } = require('../helpers/sql');
 
+// add new department to the database
 const addDepartment = () => {
     return inquirer.prompt([
         {
@@ -33,6 +34,7 @@ const addDepartment = () => {
         })
 };
 
+// add new role title to the database including salary
 const addRole = () => {
     let departmentsInfo
     let department = [];
@@ -90,6 +92,7 @@ const addRole = () => {
         });
 };
 
+// add a new employee to the database including role and manager
 const addEmployee = () => {
     let sql = 'SELECT id, title FROM roles';
     let rolesInfo;
@@ -171,6 +174,7 @@ const addEmployee = () => {
         })
 }
 
+// according to user's choice, get into different function
 const addDataInput = action => {
     const content = action.split(" ")[2];
     if (content === 'department') {

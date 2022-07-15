@@ -2,7 +2,9 @@ const db = require('../db/connection');
 const inquirer = require('inquirer');
 const { employeeSql } = require('../helpers/sql');
 
+// update an employee's role or manager
 const updateEmpRoleorManager = () => {
+    // get choices for inquirer from database
     let employeesInfo;
     let employees = [];
     let rolesInfo;
@@ -106,7 +108,7 @@ const updateEmpRoleorManager = () => {
         })
 };
 
-
+// change the whole team's manager
 const updateTeamManager = () => {
     let managersInfo;
     let managers = [];
@@ -157,6 +159,7 @@ const updateTeamManager = () => {
         })
 }
 
+// handle user's choice based on the menu
 const updateInfo = action => {
     if (action === 'update employee role or manager') {
         return updateEmpRoleorManager();

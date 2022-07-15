@@ -1,17 +1,18 @@
 const inquirer = require("inquirer");
 const db = require("../db/connection");
 
+// delete an employee or role or department
 const deleteInfo = (action) => {
     const element = action.split(" ")[2];
     let info;
     let elements = [];
     let sql;
     if (element === 'employee') {
-        sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees`;
+        sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees ORDER BY first_name`;
     } else if (element === 'role') {
-        sql = `SELECT id, title AS name FROM roles`;
+        sql = `SELECT id, title AS name FROM roles ORDER BY title`;
     } else {
-        sql = `SELECT id, name FROM departments`
+        sql = `SELECT id, name FROM departments ORDER BY name`
     }
 
     return db.promise().query(sql)
@@ -29,14 +30,8 @@ const deleteInfo = (action) => {
     })
     .then(answer => {
         const id = info.filter(element => element.name === answer.element)[0].id;
-        if (element === 'employee') {
-            sql = `DELETE FROM employees WHERE id = ${id}`;
-        } else if (element === 'role') {
-            sql = `DELETE FROM roles WHERE id = ${id}`;
-        } else {
-            sql = `DELETE FROM departments WHERE id = ${id}`;
-        }
-        
+        sql = `DELETE FROM ${element}s WHERE id = ${id}`;
+
         db.query(sql, (err, result) => {
             if (err) {
                 console.log(err.message);

@@ -1,3 +1,4 @@
+// query for displaying employees table for required information
 const employeeSql = `SELECT e.id, 
                         CONCAT(e.first_name, ' ', e.last_name) AS name, 
                         roles.title AS title,
@@ -10,6 +11,7 @@ const employeeSql = `SELECT e.id,
                         LEFT JOIN roles ON roles.id = e.role_id
                         LEFT JOIN departments ON departments.id = roles.department_id`;
 
+// query for displaying roles table for required information
 const roleSql = `SELECT roles.id, roles.title, roles.salary, departments.name AS department
                     FROM roles
                     LEFT JOIN departments

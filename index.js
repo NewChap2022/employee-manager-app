@@ -6,6 +6,7 @@ const addDataInput = require('./utils/addFunctions');
 const updateInfo = require('./utils/updateFunctions');
 const deleteInfo = require('./utils/deleteFunctions');
 
+// the title of the app
 const title = () => {
     console.log(
         `
@@ -16,6 +17,7 @@ const title = () => {
     )
 };
 
+// the menu for the app
 const menu = [
     {
         type: 'rawlist',
@@ -78,7 +80,9 @@ const menu = [
     }
 ];
 
+// what to do after user chooses the action
 const actionHandler = answer => {
+    // end the app
     if (answer.firstAction === 'Exit the App') {
         db.end((error) => {
             if(error) {
@@ -105,6 +109,7 @@ const actionHandler = answer => {
     }
 }
 
+// show menu again after one action is completed
 const actionMenu = () => {
     return inquirer.prompt(menu)
         .then(answer => {
@@ -117,6 +122,7 @@ const actionMenu = () => {
         .catch(error => console.log(error));
 }
 
+// Run the program
 const init = () => {
     title();
     actionMenu();

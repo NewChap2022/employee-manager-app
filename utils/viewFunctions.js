@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const db = require('../db/connection');
 const { employeeSql, roleSql } = require('../helpers/sql');
 
+// view all departments or roles or employees
 const viewAll = action => {
     const content = action.split(" ")[2];
     let sql = '';
@@ -15,6 +16,7 @@ const viewAll = action => {
     return db.promise().query(sql);
 };
 
+// view by manager or by department
 const viewByElement = (action) => {
     const element = action.split(' ')[3];
     let info;
@@ -52,6 +54,7 @@ const viewByElement = (action) => {
     })
 };
 
+// view the total budget by department
 const viewTheBudget = () => {
     let departmentsInfo
     let departments = []
@@ -80,6 +83,7 @@ const viewTheBudget = () => {
         })
 };
 
+// handle user's choice
 const viewInfo = action => {
     if (action.includes('view all')) {
         return viewAll(action);
