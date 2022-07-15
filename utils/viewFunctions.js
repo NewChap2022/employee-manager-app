@@ -27,42 +27,65 @@ const viewAll = action => {
     return db.promise().query(sql);
 };
 
-const viewByManager = () => {
-    let managersInfo
-    let managers = []
-    let sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees WHERE manager_id is NULL`
+const viewByElement = (action) => {
+    const element = action.split(' ')[3];
+    let info;
+    let elements = [];
+    let sql;
+    if (element === 'manager') {
+        sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees 
+                    WHERE id IN (SELECT DISTINCT manager_id FROM employees)`;
+    } else {
+        sql = `SELECT * FROM departments`;
+    }
+
     return db.promise().query(sql)
         .then(result => {
-            managersInfo = result[0];
-            managersInfo.map(element => managers.push(element.name));
+            info = result[0];
+            info.map(element => elements.push(element.name));
             return inquirer.prompt([
                 {
                     type: 'rawlist',
-                    name: 'manager',
-                    message: "Which manager's team would you like to view?",
-                    choices: managers
+                    name: 'element',
+                    message: `Which ${element}'s team members would you like to view?`,
+                    choices: elements
                 }
             ])
         .then(answer => {
-            const managerId = managersInfo.filter(element => element.name === answer.manager)[0].id;
-            sql = `SELECT e.id, 
-            CONCAT(e.first_name, ' ', e.last_name) AS name, 
-            roles.title AS title,
-            roles.salary AS salary,
-            departments.name AS department,
-            CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-            FROM employees e
-            LEFT JOIN employees m ON
-            m.id = e.manager_id 
-            LEFT JOIN roles ON roles.id = e.role_id
-            LEFT JOIN departments ON departments.id = roles.department_id
-            WHERE e.manager_id = ${managerId}`;
+            const id = info.filter(element => element.name === answer.element)[0].id;
+            if (element === 'manager') {
+                sql = `SELECT e.id, 
+                    CONCAT(e.first_name, ' ', e.last_name) AS name, 
+                    roles.title AS title,
+                    roles.salary AS salary,
+                    departments.name AS department,
+                    CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+                    FROM employees e
+                    LEFT JOIN employees m ON
+                    m.id = e.manager_id 
+                    LEFT JOIN roles ON roles.id = e.role_id
+                    LEFT JOIN departments ON departments.id = roles.department_id
+                    WHERE e.manager_id = ${id}`;
+            } else {
+                sql = `SELECT e.id, 
+                        CONCAT(e.first_name, ' ', e.last_name) AS name, 
+                        roles.title AS title,
+                        roles.salary AS salary,
+                        departments.name AS department,
+                        CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+                        FROM employees e
+                        LEFT JOIN employees m ON
+                        m.id = e.manager_id 
+                        LEFT JOIN roles ON roles.id = e.role_id
+                        LEFT JOIN departments ON departments.id = roles.department_id
+                        WHERE e.role_id IN (SELECT id FROM roles WHERE department_id = ${id})`;
+            }
             return db.promise().query(sql);
         })
     })
 };
 
-viewByDepartment = () => {
+const viewTheBudget = action => {
     let departmentsInfo
     let departments = []
     let sql = `SELECT * FROM departments`
@@ -74,35 +97,21 @@ viewByDepartment = () => {
                 {
                     type: 'rawlist',
                     name: 'department',
-                    message: "Which department's members would you like to view?",
+                    message: "Which department's total utilized budget would you like to view?",
                     choices: departments
                 }
-            ])
+            ])        
+        })
         .then(answer => {
             const departmentId = departmentsInfo.filter(element => element.name === answer.department)[0].id;
-            sql = `SELECT e.id, 
-                    CONCAT(e.first_name, ' ', e.last_name) AS name, 
-                    roles.title AS title,
-                    roles.salary AS salary,
-                    departments.name AS department,
-                    CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-                    FROM employees e
-                    LEFT JOIN employees m ON
-                    m.id = e.manager_id 
-                    LEFT JOIN roles ON roles.id = e.role_id
+            sql = `SELECT departments.name AS department, SUM (roles.salary) AS total_budget
+                    FROM employees
+                    LEFT JOIN roles ON roles.id = role_id
                     LEFT JOIN departments ON departments.id = roles.department_id
-                    WHERE e.role_id IN (SELECT id FROM roles WHERE department_id = ${departmentId})`;
+                    WHERE role_id 
+                    IN (SELECT id FROM roles WHERE department_id = ${departmentId})`;
             return db.promise().query(sql);
         })
-        })
-}
+};
 
-const viewBy = action => {
-    if (action.includes('manager')) {
-        return viewByManager()
-    } else {
-        return viewByDepartment()
-    }
-}
-
-module.exports = { viewAll, viewBy } 
+module.exports = { viewAll, viewByElement, viewTheBudget } 

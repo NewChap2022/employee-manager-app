@@ -1,9 +1,10 @@
 const inquirer = require('inquirer');
-const cTable = require('console.table')
-const { viewAll, viewBy } = require('./utils/viewFunctions');
+const db = require('./db/connection');
+const cTable = require('console.table');
+const { viewAll, viewByElement, viewTheBudget } = require('./utils/viewFunctions');
 const addDataInput = require('./utils/addFunctions');
 const updateInfo = require('./utils/updateFunctions');
-const db = require('./db/connection');
+const deleteInfo = require('./utils/deleteFunctions');
 
 const title = () => {
     console.log(
@@ -20,14 +21,14 @@ const menu = [
         type: 'rawlist',
         name: 'firstAction',
         message: 'What would you like to do?',
-        choices: ['View', 'Add', 'Update', 'Exit the App']
+        choices: ['View', 'Add', 'Update', 'Delete', 'Exit the App']
     },
     {
         type: 'rawlist',
         name: 'secondAction',
         message: 'What would you like to do?',
         choices: ['View All Employees', 'View All Roles', 'View All Departments',
-            'View Employees by Manager', 'View Employees by Department', 'Go Back to Previous Menu'],
+            'View Employees by Manager', 'View Employees by Department', 'View the Total Utilized Budget By Department', 'Go Back to Previous Menu'],
         when: ({ firstAction }) => {
             if (firstAction === "View") {
                 return true;
@@ -53,9 +54,22 @@ const menu = [
         type: 'rawlist',
         name: 'secondAction',
         message: 'What would you like to do?',
-        choices: ['Update Employee Role', 'Update Team Manager', 'Go Back to Previous Menu'],
+        choices: ['Update Employee Role or Manager', 'Update Team Manager', 'Go Back to Previous Menu'],
         when: ({ firstAction }) => {
             if (firstAction === "Update") {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+    {
+        type: 'rawlist',
+        name: 'secondAction',
+        message: 'What would you like to do?',
+        choices: ['Delete an Employee', 'Delete a Role', 'Delete a department'],
+        when: ({ firstAction }) => {
+            if (firstAction === "Delete") {
                 return true;
             } else {
                 return false;
@@ -65,7 +79,6 @@ const menu = [
 ];
 
 const actionHandler = answer => {
-    console.log(answer.firstAction);
     if (answer.firstAction === 'Exit the App') {
         db.end((error) => {
             if(error) {
@@ -81,13 +94,17 @@ const actionHandler = answer => {
         case (action.includes('view all')):
             return viewAll(action);
         case (action.includes('view employees by')):
-            return viewBy(action);
+            return viewByElement(action);
+        case (action.includes('view the total')):
+            return viewTheBudget(action);
         case (action.includes('add a')):
             return addDataInput(action);
         case (action.includes('update')):
             return updateInfo(action);
+        case (action.includes('delete')):
+            return deleteInfo(action);
         case (action === 'go back to previous menu'):
-            let result = [""]
+            let result = [""];
             return result;
     }
 }

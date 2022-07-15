@@ -103,7 +103,8 @@ const addEmployee = () => {
         .then(result => {
             rolesInfo = result[0]
             rolesInfo.map(element => roles.push(element.title));
-            sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees WHERE manager_id is NULL`
+            sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees
+                    ORDER BY last_name`;
             return db.promise().query(sql)
         })
         .then(result => {
