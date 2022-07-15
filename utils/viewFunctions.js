@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const db = require('../db/connection');
+const { employeeSql, roleSql } = require('../helpers/sql');
 
 const viewAll = action => {
     const content = action.split(" ")[2];
@@ -7,22 +8,9 @@ const viewAll = action => {
     if (content === 'departments') {
         sql = `SELECT * FROM departments`
     } else if (content === 'roles') {
-        sql = `SELECT roles.id, roles.title, roles.salary, departments.name AS department
-                FROM roles
-                LEFT JOIN departments
-                ON roles.department_id = departments.id;`
+        sql = roleSql;
     } else if (content === 'employees') {
-        sql = `SELECT e.id, 
-                CONCAT(e.first_name, ' ', e.last_name) AS name, 
-                roles.title AS title,
-                roles.salary AS salary,
-                departments.name AS department,
-                CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-                FROM employees e
-                LEFT JOIN employees m ON
-                m.id = e.manager_id 
-                LEFT JOIN roles ON roles.id = e.role_id
-                LEFT JOIN departments ON departments.id = roles.department_id`                
+        sql = employeeSql              
     }
     return db.promise().query(sql);
 };
@@ -34,7 +22,8 @@ const viewByElement = (action) => {
     let sql;
     if (element === 'manager') {
         sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees 
-                    WHERE id IN (SELECT DISTINCT manager_id FROM employees)`;
+                    WHERE id IN (SELECT DISTINCT manager_id FROM employees)
+                    ORDER BY first_name`;
     } else {
         sql = `SELECT * FROM departments`;
     }
@@ -54,31 +43,9 @@ const viewByElement = (action) => {
         .then(answer => {
             const id = info.filter(element => element.name === answer.element)[0].id;
             if (element === 'manager') {
-                sql = `SELECT e.id, 
-                    CONCAT(e.first_name, ' ', e.last_name) AS name, 
-                    roles.title AS title,
-                    roles.salary AS salary,
-                    departments.name AS department,
-                    CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-                    FROM employees e
-                    LEFT JOIN employees m ON
-                    m.id = e.manager_id 
-                    LEFT JOIN roles ON roles.id = e.role_id
-                    LEFT JOIN departments ON departments.id = roles.department_id
-                    WHERE e.manager_id = ${id}`;
+                sql = employeeSql + ` WHERE e.manager_id = ${id}`;
             } else {
-                sql = `SELECT e.id, 
-                        CONCAT(e.first_name, ' ', e.last_name) AS name, 
-                        roles.title AS title,
-                        roles.salary AS salary,
-                        departments.name AS department,
-                        CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-                        FROM employees e
-                        LEFT JOIN employees m ON
-                        m.id = e.manager_id 
-                        LEFT JOIN roles ON roles.id = e.role_id
-                        LEFT JOIN departments ON departments.id = roles.department_id
-                        WHERE e.role_id IN (SELECT id FROM roles WHERE department_id = ${id})`;
+                sql = employeeSql + ` WHERE e.role_id IN (SELECT id FROM roles WHERE department_id = ${id})`;
             }
             return db.promise().query(sql);
         })

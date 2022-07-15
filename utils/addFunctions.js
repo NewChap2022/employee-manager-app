@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 const inquirer = require('inquirer');
+const { employeeSql, roleSql } = require('../helpers/sql');
 
 const addDepartment = () => {
     return inquirer.prompt([
@@ -84,11 +85,7 @@ const addRole = () => {
                 console.log(`Added ${name} to the database`);
             });
 
-            sql = `SELECT roles.id, roles.title, roles.salary, departments.name AS department
-                    FROM roles
-                    LEFT JOIN departments
-                    ON roles.department_id = departments.id 
-                    ORDER BY id DESC LIMIT 1`
+            sql = roleSql + ` ORDER BY id DESC LIMIT 1`
             return db.promise().query(sql);
         });
 };
@@ -104,7 +101,7 @@ const addEmployee = () => {
             rolesInfo = result[0]
             rolesInfo.map(element => roles.push(element.title));
             sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees
-                    ORDER BY last_name`;
+                    ORDER BY first_name`;
             return db.promise().query(sql)
         })
         .then(result => {
@@ -169,18 +166,7 @@ const addEmployee = () => {
                 }
                 console.log(`Added ${firstName} ${lastName} to the database`);
             });
-            sql = `SELECT e.id, 
-            CONCAT(e.first_name, ' ', e.last_name) AS name, 
-            roles.title AS title,
-            roles.salary AS salary,
-            departments.name AS department,
-            CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-            FROM employees e
-            LEFT JOIN employees m ON
-            m.id = e.manager_id 
-            LEFT JOIN roles ON roles.id = e.role_id
-            LEFT JOIN departments ON departments.id = roles.department_id
-            ORDER BY id DESC LIMIT 1`
+            sql = employeeSql + ` ORDER BY id DESC LIMIT 1`
             return db.promise().query(sql);
         })
 }

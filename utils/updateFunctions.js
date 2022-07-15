@@ -1,5 +1,6 @@
 const db = require('../db/connection');
 const inquirer = require('inquirer');
+const { employeeSql } = require('../helpers/sql');
 
 const updateEmpRoleorManager = () => {
     let employeesInfo;
@@ -7,7 +8,8 @@ const updateEmpRoleorManager = () => {
     let rolesInfo;
     let roles = [];
     let managers = ['none'];
-    let sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees`
+    let sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees
+                ORDER BY first_name`
     return db.promise().query(sql)
         .then(result => {
             employeesInfo = result[0];
@@ -98,18 +100,7 @@ const updateEmpRoleorManager = () => {
                         }
                         console.log(`Updated ${answer.name}'s role to the database`);
                     })
-                    sql = `SELECT e.id, 
-                    CONCAT(e.first_name, ' ', e.last_name) AS name, 
-                    roles.title AS title,
-                    roles.salary AS salary,
-                    departments.name AS department,
-                    CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-                    FROM employees e
-                    LEFT JOIN employees m ON
-                    m.id = e.manager_id 
-                    LEFT JOIN roles ON roles.id = e.role_id
-                    LEFT JOIN departments ON departments.id = roles.department_id
-                    WHERE e.id = ${employeeId}`;
+                    sql = employeeSql + ` WHERE e.id = ${employeeId}`;
                     return db.promise().query(sql);
                 })
         })
@@ -128,7 +119,7 @@ const updateTeamManager = () => {
             managersInfo = result[0];
             managersInfo.map(element => managers.push(element.name));
             sql = `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employees
-                    ORDER BY last_name`
+                    ORDER BY first_name`
             return db.promise().query(sql)
         })
         .then(result => {
@@ -161,18 +152,7 @@ const updateTeamManager = () => {
                 }
                 console.log(`Manager ${answer.newManager} is updated to the database.`)
             })
-            sql = `SELECT e.id, 
-            CONCAT(e.first_name, ' ', e.last_name) AS name, 
-            roles.title AS title,
-            roles.salary AS salary,
-            departments.name AS department,
-            CONCAT(m.first_name, ' ', m.last_name) AS manager_name
-            FROM employees e
-            LEFT JOIN employees m ON
-            m.id = e.manager_id 
-            LEFT JOIN roles ON roles.id = e.role_id
-            LEFT JOIN departments ON departments.id = roles.department_id
-            WHERE e.manager_id = ${newManagerId}`
+            sql = employeeSql + ` WHERE e.manager_id = ${newManagerId}`
             return db.promise().query(sql);
         })
 }
