@@ -69,7 +69,7 @@ const menu = [
         type: 'rawlist',
         name: 'secondAction',
         message: 'What would you like to do?',
-        choices: ['Delete an Employee', 'Delete a Role', 'Delete a department'],
+        choices: ['Delete an Employee', 'Delete a Role', 'Delete a department', 'Go Back to Previous Menu'],
         when: ({ firstAction }) => {
             if (firstAction === "Delete") {
                 return true;
