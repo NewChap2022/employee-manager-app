@@ -30,7 +30,8 @@ Node.js; Inquirer; MySQL; Console Table
 It takes me some time to figure out how to build a promise chain so that the menu can show after retriving data from MySQL. This is a challenging task. Keep code DRY is not easy to manage. It helps me understand MySQL better.
 
 ## Walkthrough Video
-https://user-images.githubusercontent.com/103200377/179258923-cbbc9c44-9871-4db4-87ea-61b3c502ed42.mp4
+
+https://user-images.githubusercontent.com/103200377/180106655-2326e11a-4c32-4a81-8b56-e5a5352312eb.mp4
 
 
 
